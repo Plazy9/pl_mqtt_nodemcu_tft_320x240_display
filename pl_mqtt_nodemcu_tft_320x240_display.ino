@@ -14,6 +14,11 @@ const char* mqtt_server = mqttServer;
 const char* mqttServerUser = mqttUser;
 const char* mqttServerPWD = mqttPassword;
 
+const String mqttMainTopic = mqttMainTopic_CFG;
+const String mqttDeviceName = mqttDeviceName_CFG; 
+
+String full_mqtt_topic = (mqttMainTopic+"/"+mqttDeviceName).c_str();
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
@@ -194,7 +199,7 @@ void reconnect() {
     if (client.connect(clientId.c_str(),mqttServerUser, mqttServerPWD)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish("pl_nodemcu_currency_display/pl_outTopic", "hello world");
+      client.publish((full_mqtt_topic+"/stateTopic").c_str(), "Display is working");
       // ... and resubscribe
       client.subscribe("dsmr/reading/electricity_currently_returned");
       client.subscribe("dsmr/reading/electricity_currently_delivered");
@@ -285,7 +290,7 @@ void loop() {
     snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
-    client.publish("pl_nodemcu_currency_display/pl_outTopic", msg);
+    client.publish((full_mqtt_topic+"/stateTopic").c_str(), msg);
   }
 
 }
