@@ -23,6 +23,8 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
 unsigned long lastMsg2 = 0;
+unsigned long lastProcessTime = 0;
+
 #define MSG_BUFFER_SIZE  (50)
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
@@ -78,6 +80,7 @@ void setup_wifi() {
     tft.print("." );
   }
 
+  tft.println("." );
   randomSeed(micros());
   Serial.println("");
   Serial.println("WiFi connected");
@@ -85,91 +88,95 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 
   //tft.clearDisplay();
-  tft.setCursor(0,30);
-  tft.println("IP address: " );
   tft.setCursor(0,50);
+  tft.println("IP address: " );
+  tft.setCursor(0,70);
   tft.println(WiFi.localIP());
   //tft.display();
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
   
+
   Serial.print("Message arrived [");
   Serial.print(topic);
-  Serial.print("] ");
+  Serial.println("] ");
+
+  tft.setTextColor(WHITE, BLACK);
+  tft.setTextSize(1);
+  char messageText[9];
+
   if(strcmp(topic, "dsmr/reading/electricity_currently_delivered") ==  0 ){
     ElectricityDelivered = "";
     for (int i = 0; i < length; i++) {
       ElectricityDelivered += (char)payload[i];
-      Serial.print((char)payload[i]);
     }
+    //Serial.print(ElectricityDelivered);
+    tft.setCursor(5,5);
+    tft.println("Delivered: ");
+    tft.setCursor(5,21);
+    tft.setTextSize(2);
+    sprintf(messageText, "%9s", ElectricityDelivered+ " kW");
+    tft.print(messageText);
   }
   if(strcmp(topic, "dsmr/reading/electricity_currently_returned") ==  0 ){
     ElectricityReturned = "";
     for (int i = 0; i < length; i++) {
       ElectricityReturned += (char)payload[i];
-      Serial.print((char)payload[i]);
     }
-  }
+    //Serial.print(ElectricityReturned);
+    tft.setCursor(5,41);
+    tft.setTextSize(1);
+    tft.println("Returned: ");
+    tft.setTextSize(2);
+    tft.setCursor(5,51);
+    sprintf(messageText, "%9s", ElectricityReturned+ " kW");
+    tft.print(messageText);
+}
 
-  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
-    PoolTemp_0 = "";
-    for (int i = 0; i < length; i++) {
-      PoolTemp_0 += (char)payload[i];
-      Serial.print((char)payload[i]);
+  unsigned long currentTime = millis();
+  //if (currentTime - lastProcessTime >= 5000) {
+    if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
+      PoolTemp_0 = "";
+      for (int i = 0; i < length; i++) {
+        PoolTemp_0 += (char)payload[i];
+      }
+      //Serial.print(PoolTemp_0);
+      tft.setTextSize(1);
+      tft.setCursor(screenWidth/2+5,5);
+      tft.println("Temp0: ");
+      tft.setCursor(screenWidth/2+5,20);
+      tft.setTextSize(2);
+      sprintf(messageText, "%9s", PoolTemp_0+ " C");
+      tft.print(messageText);
+      tft.println();
     }
-  }
 
-  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/1/") ==  0 ){
-    PoolTemp_1 = "";
-    for (int i = 0; i < length; i++) {
-      PoolTemp_1 += (char)payload[i];
-      Serial.print((char)payload[i]);
+    if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/1/") ==  0 ){
+      PoolTemp_1 = "";
+      for (int i = 0; i < length; i++) {
+        PoolTemp_1 += (char)payload[i];
+      }
+      //Serial.print(PoolTemp_1);
+      tft.setCursor(screenWidth/2+5,40);
+      tft.setTextSize(1);
+      tft.println("Temp1: ");
+      tft.setTextSize(2);
+      tft.setCursor(screenWidth/2+5,55);
+      sprintf(messageText, "%9s", PoolTemp_1+ " C");
+      tft.print(messageText);
     }
-  }
-//  tft.clearDisplay();
+    lastProcessTime = currentTime; // Frissítjük az utolsó feldolgozás idejét
+  //}
+
+  
+
+  //  tft.clearDisplay();
 
   //tft.fillScreen(ILI9341_BLACK);
 
+  //Serial.println();
 
-  tft.setTextColor(WHITE, BLACK);
-  tft.setTextSize(1);
-  
-  tft.setCursor(5,5);
-  tft.println("Delivered: ");
-  tft.setCursor(5,21);
-  tft.setTextSize(2);
-  char messageText[9];
-  sprintf(messageText, "%9s", ElectricityDelivered+ " kW");
-  tft.print(messageText);
-  
-  tft.setCursor(5,41);
-  tft.setTextSize(1);
-  tft.println("Returned: ");
-  tft.setTextSize(2);
-  tft.setCursor(5,51);
-  sprintf(messageText, "%9s", ElectricityReturned+ " kW");
-  tft.print(messageText);
-
-  
-  tft.setTextSize(1);
-  tft.setCursor(screenWidth/2+5,5);
-  tft.println("Temp0: ");
-  tft.setCursor(screenWidth/2+5,20);
-  tft.setTextSize(2);
-  sprintf(messageText, "%9s", PoolTemp_0+ " C");
-  tft.print(messageText);
-  tft.println();
-
-  tft.setCursor(screenWidth/2+5,40);
-  tft.setTextSize(1);
-  tft.println("Temp1: ");
-  tft.setTextSize(2);
-  tft.setCursor(screenWidth/2+5,55);
-  sprintf(messageText, "%9s", PoolTemp_1+ " C");
-  tft.print(messageText);
-
-  Serial.println();
 
   // Switch on the LED if an 1 was received as first character
   /*
@@ -269,20 +276,17 @@ void setup() {
 
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
+  client.setKeepAlive(600);
 }
+
 
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
-  
   unsigned long now = millis();
   //Serial.print("lastmsg: " + String(lastMsg));
-
-  if (now - lastMsg2 > 2000 || lastMsg == 0) {
-    lastMsg2 = now;
-    client.loop();
-  }
+  client.loop();
 
   if (now - lastMsg > 30000 || lastMsg == 0) {
     lastMsg = now;
