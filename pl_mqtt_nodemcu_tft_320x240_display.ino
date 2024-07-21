@@ -94,7 +94,7 @@ void setup_wifi() {
   tft.println(WiFi.localIP());
   //tft.display();
 }
-
+char tempBuffer[50];
 void callback(char* topic, byte* payload, unsigned int length) {
   
 
@@ -104,7 +104,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   tft.setTextColor(WHITE, BLACK);
   tft.setTextSize(1);
-  char messageText[9];
+  char messageText[14];
 
   if(strcmp(topic, "dsmr/reading/electricity_currently_delivered") ==  0 ){
     ElectricityDelivered = "";
@@ -114,28 +114,62 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //Serial.print(ElectricityDelivered);
     tft.setCursor(5,5);
     tft.println("Delivered: ");
-    tft.setCursor(5,21);
+    tft.setCursor(5,20);
     tft.setTextSize(2);
-    sprintf(messageText, "%9s", ElectricityDelivered+ " kW");
+    snprintf(tempBuffer, sizeof(tempBuffer), "%s kW", ElectricityDelivered);
+    snprintf(messageText, sizeof(messageText), "%10s", tempBuffer);
     tft.print(messageText);
   }
+
   if(strcmp(topic, "dsmr/reading/electricity_currently_returned") ==  0 ){
     ElectricityReturned = "";
     for (int i = 0; i < length; i++) {
       ElectricityReturned += (char)payload[i];
     }
     //Serial.print(ElectricityReturned);
-    tft.setCursor(5,41);
+    tft.setCursor(5,45);
     tft.setTextSize(1);
     tft.println("Returned: ");
     tft.setTextSize(2);
-    tft.setCursor(5,51);
-    sprintf(messageText, "%9s", ElectricityReturned+ " kW");
+    tft.setCursor(5,60);
+    snprintf(tempBuffer, sizeof(tempBuffer), "%s kW", ElectricityReturned);
+    snprintf(messageText, sizeof(messageText), "%10s", tempBuffer);
     tft.print(messageText);
-}
+  }
 
-  unsigned long currentTime = millis();
-  //if (currentTime - lastProcessTime >= 5000) {
+  if(strcmp(topic, "dsmr/reading/electricity_delivered") ==  0 ){
+    ElectricityReturned = "";
+    for (int i = 0; i < length; i++) {
+      ElectricityReturned += (char)payload[i];
+    }
+    //Serial.print(ElectricityReturned);
+    tft.setCursor(5,135);
+    tft.setTextSize(1);
+    tft.println("Delivered: ");
+    tft.setTextSize(2);
+    tft.setCursor(5,150);
+    snprintf(tempBuffer, sizeof(tempBuffer), "%s kWh", ElectricityReturned);
+    snprintf(messageText, sizeof(messageText), "%13s", tempBuffer);
+    tft.print(messageText);
+  }
+
+  if(strcmp(topic, "dsmr/reading/electricity_returned") ==  0 ){
+    ElectricityReturned = "";
+    for (int i = 0; i < length; i++) {
+      ElectricityReturned += (char)payload[i];
+    }
+    Serial.print(ElectricityReturned);
+    tft.setCursor(5,175);
+    tft.setTextSize(1);
+    tft.println("Returned: ");
+    tft.setTextSize(2);
+    tft.setCursor(5,190);
+    snprintf(tempBuffer, sizeof(tempBuffer), "%s kWh", ElectricityReturned);
+    snprintf(messageText, sizeof(messageText), "%13s", tempBuffer);
+    //sprintf(messageText, "%s kWh", ElectricityReturned);
+    tft.print(messageText);
+  }
+
     if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
       PoolTemp_0 = "";
       for (int i = 0; i < length; i++) {
@@ -147,7 +181,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       tft.println("Temp0: ");
       tft.setCursor(screenWidth/2+5,20);
       tft.setTextSize(2);
-      sprintf(messageText, "%9s", PoolTemp_0+ " C");
+      sprintf(messageText, "%8s C", PoolTemp_0);
       tft.print(messageText);
       tft.println();
     }
@@ -158,16 +192,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
         PoolTemp_1 += (char)payload[i];
       }
       //Serial.print(PoolTemp_1);
-      tft.setCursor(screenWidth/2+5,40);
+      tft.setCursor(screenWidth/2+5,45);
       tft.setTextSize(1);
       tft.println("Temp1: ");
       tft.setTextSize(2);
-      tft.setCursor(screenWidth/2+5,55);
-      sprintf(messageText, "%9s", PoolTemp_1+ " C");
+      tft.setCursor(screenWidth/2+5,60);
+      sprintf(messageText, "%8s C", PoolTemp_1);
       tft.print(messageText);
     }
-    lastProcessTime = currentTime; // Frissítjük az utolsó feldolgozás idejét
-  //}
+
 
   
 
@@ -212,6 +245,8 @@ void reconnect() {
       client.subscribe("dsmr/reading/electricity_currently_delivered");
       client.subscribe("pl_nodemcu_temp/pl_outTopic/0/");
       client.subscribe("pl_nodemcu_temp/pl_outTopic/1/");
+      client.subscribe("dsmr/reading/electricity_delivered");
+      client.subscribe("dsmr/reading/electricity_returned");
       
     } else {
       Serial.print("failed, rc=");
