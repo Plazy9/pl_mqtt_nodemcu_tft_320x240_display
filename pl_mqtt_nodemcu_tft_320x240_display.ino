@@ -170,36 +170,66 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.print(messageText);
   }
 
-    if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
-      PoolTemp_0 = "";
-      for (int i = 0; i < length; i++) {
-        PoolTemp_0 += (char)payload[i];
-      }
-      //Serial.print(PoolTemp_0);
-      tft.setTextSize(1);
-      tft.setCursor(screenWidth/2+5,5);
-      tft.println("Temp0: ");
-      tft.setCursor(screenWidth/2+5,20);
-      tft.setTextSize(2);
-      sprintf(messageText, "%8s C", PoolTemp_0);
-      tft.print(messageText);
-      tft.println();
+  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
+    PoolTemp_0 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_0 += (char)payload[i];
     }
+    //Serial.print(PoolTemp_0);
+    tft.setTextSize(1);
+    tft.setCursor(screenWidth/2+5,5);
+    tft.println("Temp0: ");
+    tft.setCursor(screenWidth/2+5,20);
+    tft.setTextSize(2);
+    sprintf(messageText, "%8s C", PoolTemp_0);
+    tft.print(messageText);
+    tft.println();
+  }
 
-    if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/1/") ==  0 ){
-      PoolTemp_1 = "";
-      for (int i = 0; i < length; i++) {
-        PoolTemp_1 += (char)payload[i];
-      }
-      //Serial.print(PoolTemp_1);
-      tft.setCursor(screenWidth/2+5,45);
-      tft.setTextSize(1);
-      tft.println("Temp1: ");
-      tft.setTextSize(2);
-      tft.setCursor(screenWidth/2+5,60);
-      sprintf(messageText, "%8s C", PoolTemp_1);
-      tft.print(messageText);
+  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/1/") ==  0 ){
+    PoolTemp_1 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_1 += (char)payload[i];
     }
+    //Serial.print(PoolTemp_1);
+    tft.setCursor(screenWidth/2+5,45);
+    tft.setTextSize(1);
+    tft.println("Temp1: ");
+    tft.setTextSize(2);
+    tft.setCursor(screenWidth/2+5,60);
+    sprintf(messageText, "%8s C", PoolTemp_1);
+    tft.print(messageText);
+  }
+
+  if(strcmp(topic, "pl_devices/esp01_DHT22_01/temperature") ==  0 ){
+    PoolTemp_1 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_1 += (char)payload[i];
+    }
+    //Serial.print(PoolTemp_1);
+    tft.setCursor(screenWidth/2+5,135);
+    tft.setTextSize(1);
+    tft.println("Terace: ");
+    tft.setTextSize(2);
+    tft.setCursor(screenWidth/2+5,150);
+    sprintf(messageText, "%8s C", PoolTemp_1);
+    tft.print(messageText);
+  }
+
+  if(strcmp(topic, "pl_devices/esp01_DHT22_01/humidity") ==  0 ){
+    PoolTemp_1 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_1 += (char)payload[i];
+    }
+    //Serial.print(PoolTemp_1);
+    tft.setCursor(screenWidth/2+5,175);
+    tft.setTextSize(1);
+    tft.println("Terace humi: ");
+    tft.setTextSize(2);
+    tft.setCursor(screenWidth/2+5,190);
+    sprintf(messageText, "%8s hum", PoolTemp_1);
+    tft.print(messageText);
+  }
 
 
   
@@ -241,12 +271,23 @@ void reconnect() {
       // Once connected, publish an announcement...
       client.publish((full_mqtt_topic+"/stateTopic").c_str(), "Display is working");
       // ... and resubscribe
+      
+
       client.subscribe("dsmr/reading/electricity_currently_returned");
       client.subscribe("dsmr/reading/electricity_currently_delivered");
+      
+      // pool temp
       client.subscribe("pl_nodemcu_temp/pl_outTopic/0/");
       client.subscribe("pl_nodemcu_temp/pl_outTopic/1/");
+
+
       client.subscribe("dsmr/reading/electricity_delivered");
       client.subscribe("dsmr/reading/electricity_returned");
+
+      //terace temp & humi
+      client.subscribe("pl_devices/esp01_DHT22_01/temperature");
+      client.subscribe("pl_devices/esp01_DHT22_01/humidity");
+      
       
     } else {
       Serial.print("failed, rc=");
