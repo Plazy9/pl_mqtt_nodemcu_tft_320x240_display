@@ -7,4 +7,4 @@ Az adatok:
 	- pillanatnyi villamosenergia vett és visszatáplált
   - teljes vett és visszatermelt villamosenergia
 	- Pillanatny medencevehőmérők (alós és felsó)
-  - terasz hőmérésklet és pára. (esp01 + DTH22 + mqtt)
+  - terasz hőmérésklet és pára. (esp01 + DTH22 + mqtt) https://github.com/Plazy9/ESP01_DHT22_MQTT
