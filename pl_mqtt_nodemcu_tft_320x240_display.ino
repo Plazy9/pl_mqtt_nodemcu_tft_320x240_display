@@ -283,10 +283,10 @@ void reconnect() {
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str(),mqttServerUser, mqttServerPWD)) {
+    if (client.connect(clientId.c_str(),mqttServerUser, mqttServerPWD, (full_mqtt_topic+"/status").c_str(), 0, true, "offline")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish((full_mqtt_topic+"/stateTopic").c_str(), "Display is working");
+      client.publish((full_mqtt_topic+"/status").c_str(), "online");
       // ... and resubscribe
       
 
@@ -381,14 +381,14 @@ void loop() {
   unsigned long now = millis();
   //Serial.print("lastmsg: " + String(lastMsg));
   client.loop();
-
+/*
   if (now - lastMsg > 30000 || lastMsg == 0) {
     lastMsg = now;
     ++value;
     snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
-    client.publish((full_mqtt_topic+"/stateTopic").c_str(), msg);
+    client.publish((full_mqtt_topic+"/status").c_str(), msg);
   }
-
+*/
 }
