@@ -32,6 +32,7 @@ String ElectricityDelivered = "";
 String ElectricityReturned = "";
 String PoolTemp_0 = "";
 String PoolTemp_1 = "";
+String deviceStatus = "";
 
 
 // Define pin connections
@@ -201,6 +202,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.print(messageText);
   }
 
+  if(strcmp(topic, "pl_devices/esp01_DHT22_01/status") ==  0 ){
+    deviceStatus = "";
+    for (int i = 0; i < length; i++) {
+      deviceStatus += (char)payload[i];
+    }
+    if(deviceStatus == "offline"){
+      tft.setTextSize(2);
+      tft.setCursor(screenWidth/2+5,150);
+      sprintf(messageText, "%8s", deviceStatus);
+      sprintf(messageText, "   offline   ");
+      tft.print(messageText);
+      tft.setCursor(screenWidth/2+5,190);
+      tft.print(messageText);
+    }
+  }
+
   if(strcmp(topic, "pl_devices/esp01_DHT22_01/temperature") ==  0 ){
     PoolTemp_1 = "";
     for (int i = 0; i < length; i++) {
@@ -210,7 +227,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.setCursor(screenWidth/2+5,135);
     tft.setTextSize(1);
     tft.println("Terace: ");
-    tft.setTextSize(2);
+    tft.setTextSize(2);  
     tft.setCursor(screenWidth/2+5,150);
     sprintf(messageText, "%8s C", PoolTemp_1);
     tft.print(messageText);
@@ -287,6 +304,7 @@ void reconnect() {
       //terace temp & humi
       client.subscribe("pl_devices/esp01_DHT22_01/temperature");
       client.subscribe("pl_devices/esp01_DHT22_01/humidity");
+      client.subscribe("pl_devices/esp01_DHT22_01/status");
       
       
     } else {
