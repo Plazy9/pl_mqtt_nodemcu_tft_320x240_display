@@ -286,7 +286,8 @@ void reconnect() {
     if (client.connect(clientId.c_str(),mqttServerUser, mqttServerPWD, (full_mqtt_topic+"/status").c_str(), 0, true, "offline")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish((full_mqtt_topic+"/status").c_str(), "online");
+      snprintf (msg, MSG_BUFFER_SIZE, "online");
+      client.publish((full_mqtt_topic+"/status").c_str(), msg);
       // ... and resubscribe
       
 
