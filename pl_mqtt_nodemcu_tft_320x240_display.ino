@@ -59,6 +59,8 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 int screenWidth = 0;
 int screenHeight = 0;
 
+int infoBlockY =0;
+
 void setup_wifi() {
   // We start by connecting to a WiFi network
   
@@ -149,8 +151,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.println("Delivered: ");
     tft.setTextSize(2);
     tft.setCursor(5,150);
-    snprintf(tempBuffer, sizeof(tempBuffer), "%s kWh", ElectricityReturned);
-    snprintf(messageText, sizeof(messageText), "%13s", tempBuffer);
+    snprintf(tempBuffer, sizeof(tempBuffer), "%.2f kWh", ElectricityReturned.toFloat());
+    snprintf(messageText, sizeof(messageText), "%12s", tempBuffer);
     tft.print(messageText);
   }
 
@@ -165,8 +167,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.println("Returned: ");
     tft.setTextSize(2);
     tft.setCursor(5,190);
-    snprintf(tempBuffer, sizeof(tempBuffer), "%s kWh", ElectricityReturned);
-    snprintf(messageText, sizeof(messageText), "%13s", tempBuffer);
+    snprintf(tempBuffer, sizeof(tempBuffer), "%.2f kWh", ElectricityReturned.toFloat());
+    snprintf(messageText, sizeof(messageText), "%12s", tempBuffer);
     //sprintf(messageText, "%s kWh", ElectricityReturned);
     tft.print(messageText);
   }
@@ -202,54 +204,108 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.print(messageText);
   }
 
-  if(strcmp(topic, "pl_devices/esp01_DHT22_01/status") ==  0 ){
+//-------esp01_DHT22_01-------------------------------------------------------------
+  String deviceName = "pl_devices/esp01_DHT22_01/";
+  infoBlockY = 90;
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "status").c_str()) ==  0 ){
     deviceStatus = "";
     for (int i = 0; i < length; i++) {
       deviceStatus += (char)payload[i];
     }
+    
     if(deviceStatus == "offline"){
       tft.setTextSize(2);
-      tft.setCursor(screenWidth/2+5,150);
-      sprintf(messageText, "%8s", deviceStatus);
-      sprintf(messageText, "   offline   ");
+      tft.setCursor(screenWidth/2+5, infoBlockY+15 );
+      sprintf(messageText, "  offline  ");
       tft.print(messageText);
-      tft.setCursor(screenWidth/2+5,190);
+      tft.setCursor(screenWidth/2+5, infoBlockY+50);
       tft.print(messageText);
     }
   }
-
-  if(strcmp(topic, "pl_devices/esp01_DHT22_01/temperature") ==  0 ){
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "temperature").c_str()) ==  0 ){
     PoolTemp_1 = "";
     for (int i = 0; i < length; i++) {
       PoolTemp_1 += (char)payload[i];
     }
     //Serial.print(PoolTemp_1);
-    tft.setCursor(screenWidth/2+5,135);
+    tft.setCursor(screenWidth/2+5, infoBlockY);
     tft.setTextSize(1);
-    tft.println("Terace: ");
+    tft.println("Terasz: ");
     tft.setTextSize(2);  
-    tft.setCursor(screenWidth/2+5,150);
+    tft.setCursor(screenWidth/2+5, infoBlockY+15);
     sprintf(messageText, "%8s C", PoolTemp_1);
     tft.print(messageText);
   }
-
-  if(strcmp(topic, "pl_devices/esp01_DHT22_01/humidity") ==  0 ){
+  
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "humidity").c_str()) ==  0 ){
     PoolTemp_1 = "";
     for (int i = 0; i < length; i++) {
       PoolTemp_1 += (char)payload[i];
     }
     //Serial.print(PoolTemp_1);
-    tft.setCursor(screenWidth/2+5,175);
+    tft.setCursor(screenWidth/2+5, infoBlockY+35);
     tft.setTextSize(1);
-    tft.println("Terace humi: ");
+    tft.println("Terasz humi: ");
     tft.setTextSize(2);
-    tft.setCursor(screenWidth/2+5,190);
-    sprintf(messageText, "%8s hum", PoolTemp_1);
+    tft.setCursor(screenWidth/2+5, infoBlockY+50);
+    sprintf(messageText, "%8s %%", PoolTemp_1);
     tft.print(messageText);
   }
 
-
+//-------esp01_DHT22_02-------------------------------------------------------------
+  deviceName = "pl_devices/esp01_DHT22_02/";
+  infoBlockY = 165;
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "status").c_str()) ==  0 ){
+    deviceStatus = "";
+    for (int i = 0; i < length; i++) {
+      deviceStatus += (char)payload[i];
+    }
+    
+    if(deviceStatus == "offline"){
+      tft.setTextSize(2);
+      tft.setCursor(screenWidth/2+5, infoBlockY+15 );
+      sprintf(messageText, "  offline  ");
+      tft.print(messageText);
+      tft.setCursor(screenWidth/2+5, infoBlockY+50);
+      tft.print(messageText);
+    }
+  }
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "temperature").c_str()) ==  0 ){
+    PoolTemp_1 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_1 += (char)payload[i];
+    }
+    //Serial.print(PoolTemp_1);
+    tft.setCursor(screenWidth/2+5, infoBlockY);
+    tft.setTextSize(1);
+    tft.println("Back: ");
+    tft.setTextSize(2);  
+    tft.setCursor(screenWidth/2+5, infoBlockY+15);
+    sprintf(messageText, "%8s C", PoolTemp_1);
+    tft.print(messageText);
+  }
   
+  strcpy(messageText, "");
+  if(strcmp(topic, (deviceName + "humidity").c_str()) ==  0 ){
+    PoolTemp_1 = "";
+    for (int i = 0; i < length; i++) {
+      PoolTemp_1 += (char)payload[i];
+    }
+    //Serial.print(PoolTemp_1);
+    tft.setCursor(screenWidth/2+5, infoBlockY+35);
+    tft.setTextSize(1);
+    tft.println("Back humi: ");
+    tft.setTextSize(2);
+    tft.setCursor(screenWidth/2+5, infoBlockY+50);
+    sprintf(messageText, "%8s %%", PoolTemp_1);
+    tft.print(messageText);
+  }
+
 
   //  tft.clearDisplay();
 
@@ -307,6 +363,10 @@ void reconnect() {
       client.subscribe("pl_devices/esp01_DHT22_01/humidity");
       client.subscribe("pl_devices/esp01_DHT22_01/status");
       
+      //behind the garage temp & humi
+      client.subscribe("pl_devices/esp01_DHT22_02/temperature");
+      client.subscribe("pl_devices/esp01_DHT22_02/humidity");
+      client.subscribe("pl_devices/esp01_DHT22_02/status");
       
     } else {
       Serial.print("failed, rc=");
@@ -330,7 +390,10 @@ void drawFrame(){
   
   tft.drawRect(0, 0, screenWidth, screenHeight, RED);
   tft.drawLine(screenWidth/2, 0, screenWidth/2, screenHeight, BLUE);
-  tft.drawLine(0, screenHeight/2, screenWidth, screenHeight/2, GREEN);
+  tft.drawLine(0, screenHeight/2, screenWidth/2, screenHeight/2, GREEN);
+
+  tft.drawLine(screenWidth/2, screenHeight/3, screenWidth, screenHeight/3, YELLOW);
+  tft.drawLine(screenWidth/2, screenHeight/3*2, screenWidth, screenHeight/3*2, YELLOW);
 
 }
 
