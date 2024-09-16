@@ -173,7 +173,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.print(messageText);
   }
 
-  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/0/") ==  0 ){
+  if(strcmp(topic, "pl_devices/pool_temperature/temperature0") ==  0 ){
     PoolTemp_0 = "";
     for (int i = 0; i < length; i++) {
       PoolTemp_0 += (char)payload[i];
@@ -189,7 +189,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     tft.println();
   }
 
-  if(strcmp(topic, "pl_nodemcu_temp/pl_outTopic/1/") ==  0 ){
+  if(strcmp(topic, "pl_devices/pool_temperature/temperature1") ==  0 ){
     PoolTemp_1 = "";
     for (int i = 0; i < length; i++) {
       PoolTemp_1 += (char)payload[i];
@@ -350,9 +350,12 @@ void reconnect() {
       client.subscribe("dsmr/reading/electricity_currently_returned");
       client.subscribe("dsmr/reading/electricity_currently_delivered");
       
-      // pool temp
-      client.subscribe("pl_nodemcu_temp/pl_outTopic/0/");
-      client.subscribe("pl_nodemcu_temp/pl_outTopic/1/");
+      // pool temp 
+      //client.subscribe("pl_nodemcu_temp/pl_outTopic/0/");
+      //client.subscribe("pl_nodemcu_temp/pl_outTopic/1/");
+
+      client.subscribe("pl_devices/pool_temperature/temperature0");
+      client.subscribe("pl_devices/pool_temperature/temperature1");
 
 
       client.subscribe("dsmr/reading/electricity_delivered");
